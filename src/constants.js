@@ -1,0 +1,2 @@
+export const LOGO_FALLBACK =
+  "data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2348A111%22 /%3E%3Ctext x=%2220%22 y=%2265%22 font-size=%2230%22 fill=%22%23F7F0F0%22%3EMF%3C/text%3E%3C/svg%3E";
