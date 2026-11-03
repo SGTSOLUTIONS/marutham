@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Original large GIS files
+public/data/TN_Taluk.geojson
