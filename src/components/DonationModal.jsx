@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
-import { Modal } from 'bootstrap';
 
 const AMOUNTS = [
     { value: '500', label: '₹500' },
-    { value: '1000', label: '₹1,000', selected: true },
+    { value: '1000', label: '₹1,000' },
     { value: '2500', label: '₹2,500' },
     { value: '5000', label: '₹5,000' },
     { value: '10000', label: '₹10,000' },
@@ -21,6 +21,7 @@ const PURPOSES = [
 export default function DonationModal({ show, onClose, onOpenModal }) {
     const [amount, setAmount] = useState('1000');
     const [customAmount, setCustomAmount] = useState('');
+
     const [form, setForm] = useState({
         name: '',
         email: '',
@@ -29,22 +30,52 @@ export default function DonationModal({ show, onClose, onOpenModal }) {
         message: '',
         consent: false,
     });
+
     const [error, setError] = useState('');
     const [processing, setProcessing] = useState(false);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+
+        setForm((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+
+        if (error) setError('');
     };
+
+    const selectedAmount = amount === 'other'
+        ? Number(customAmount)
+        : Number(amount);
+
+    const formatAmount = (value) =>
+        Number(value).toLocaleString('en-IN');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
         if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
-            setError('Please fill in all required fields (Name, Email, Phone).');
+            setError('Please fill in your name, email and phone number.');
             return;
         }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+
+        if (amount === 'other' && (!customAmount || selectedAmount <= 0)) {
+            setError('Please enter a valid donation amount.');
+            return;
+        }
+
+        if (!Number.isFinite(selectedAmount) || selectedAmount <= 0) {
+            setError('Please select a valid donation amount.');
+            return;
+        }
+
         if (!form.consent) {
             setError('Please agree to the terms and conditions.');
             return;
@@ -52,11 +83,14 @@ export default function DonationModal({ show, onClose, onOpenModal }) {
 
         setProcessing(true);
 
-        // Simulate submission — replace with real API call
         try {
-            await new Promise((r) => setTimeout(r, 1500));
-            // window.location.href = 'initiate_payment.php'; // Uncomment for real integration
-            alert('Thank you! Your donation is being processed.');
+            // TODO: Replace this simulation with the ICICI payment API.
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            alert(
+                `Thank you, ${form.name}! Your donation of ₹${formatAmount(selectedAmount)} is ready for payment integration.`
+            );
+
             onClose();
         } catch (err) {
             setError('Something went wrong. Please try again.');
@@ -65,60 +99,86 @@ export default function DonationModal({ show, onClose, onOpenModal }) {
         }
     };
 
+    const openPolicy = (policy) => {
+        if (onOpenModal) onOpenModal(policy);
+    };
+
+    if (!show) return null;
+
     return (
         <div
-            className={`modal fade donation-modal ${show ? 'show d-block' : ''}`}
-            tabIndex="-1"
-            style={{ display: show ? 'block' : 'none', background: show ? 'rgba(0,0,0,0.5)' : 'transparent' }}
-            aria-hidden={!show}
+            className="donation-overlay"
+            onClick={onClose}
+            role="presentation"
         >
-            <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <div>
-                            <h5 className="modal-title donation-title">
-                                <i className="fas fa-hand-holding-heart me-2" style={{ color: '#F2B50B' }}></i>{' '}
-                                Make a Donation
-                            </h5>
-                            <p className="donation-sub mt-1 mb-0">
-                                <i className="fas fa-leaf me-1" style={{ color: '#48A111' }}></i> Your support
-                                nurtures nature, education, and communities.
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            className="btn-close"
-                            onClick={onClose}
-                            aria-label="Close"
-                        ></button>
+            <div
+                className="donation-modal-premium"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="donationTitle"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* HEADER */}
+                <div className="donation-modal-header">
+                    <div className="donation-header-icon">
+                        <i className="fas fa-hand-holding-heart"></i>
                     </div>
 
-                    <div className="modal-body">
-                        <form onSubmit={handleSubmit}>
-                            <div className="row g-3">
-                                <div className="col-md-6">
-                                    <label htmlFor="donorName" className="form-label fw-semibold">
-                                        <i className="fas fa-user me-1"></i> Full Name
-                                    </label>
+                    <div className="donation-header-content">
+                        <h2 id="donationTitle">Make a Donation</h2>
+                        <p>
+                            Your generosity nurtures nature, education
+                            and communities.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="donation-close"
+                        onClick={onClose}
+                        aria-label="Close donation window"
+                    >
+                        <i className="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form className="donation-modal-form" onSubmit={handleSubmit}>
+                    <div className="donation-modal-body">
+
+                        {/* DONOR INFORMATION */}
+                        <div className="donation-section-heading">
+                            <i className="fas fa-user-circle"></i>
+                            Donor Information
+                        </div>
+
+                        <div className="row g-3">
+                            <div className="col-md-6">
+                                <label className="donation-label">
+                                    Full Name <span>*</span>
+                                </label>
+
+                                <div className="donation-input-wrap">
+                                    <i className="fas fa-user"></i>
                                     <input
                                         type="text"
-                                        className="form-control"
-                                        id="donorName"
                                         name="name"
                                         value={form.name}
                                         onChange={handleChange}
-                                        placeholder="Your name"
+                                        placeholder="Enter your full name"
                                         required
                                     />
                                 </div>
-                                <div className="col-md-6">
-                                    <label htmlFor="donorEmail" className="form-label fw-semibold">
-                                        <i className="fas fa-envelope me-1"></i> Email
-                                    </label>
+                            </div>
+
+                            <div className="col-md-6">
+                                <label className="donation-label">
+                                    Email Address <span>*</span>
+                                </label>
+
+                                <div className="donation-input-wrap">
+                                    <i className="fas fa-envelope"></i>
                                     <input
                                         type="email"
-                                        className="form-control"
-                                        id="donorEmail"
                                         name="email"
                                         value={form.email}
                                         onChange={handleChange}
@@ -126,14 +186,17 @@ export default function DonationModal({ show, onClose, onOpenModal }) {
                                         required
                                     />
                                 </div>
-                                <div className="col-md-6">
-                                    <label htmlFor="donorPhone" className="form-label fw-semibold">
-                                        <i className="fas fa-phone me-1"></i> Phone
-                                    </label>
+                            </div>
+
+                            <div className="col-md-6">
+                                <label className="donation-label">
+                                    Phone Number <span>*</span>
+                                </label>
+
+                                <div className="donation-input-wrap">
+                                    <i className="fas fa-phone-alt"></i>
                                     <input
                                         type="tel"
-                                        className="form-control"
-                                        id="donorPhone"
                                         name="phone"
                                         value={form.phone}
                                         onChange={handleChange}
@@ -141,151 +204,180 @@ export default function DonationModal({ show, onClose, onOpenModal }) {
                                         required
                                     />
                                 </div>
-                                <div className="col-md-6">
-                                    <label htmlFor="donationAmount" className="form-label fw-semibold">
-                                        <i className="fas fa-rupee-sign me-1"></i> Amount (₹)
-                                    </label>
-                                    <select
-                                        className="form-select"
-                                        id="donationAmount"
-                                        name="donationAmount"
-                                        value={amount}
-                                        onChange={(e) => setAmount(e.target.value)}
-                                    >
-                                        {AMOUNTS.map((a) => (
-                                            <option key={a.value} value={a.value}>
-                                                {a.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                            </div>
+                        </div>
 
-                                {amount === 'other' && (
-                                    <div className="col-12">
-                                        <label htmlFor="customAmount" className="form-label fw-semibold">
-                                            <i className="fas fa-pencil-alt me-1"></i> Custom Amount (₹)
-                                        </label>
-                                        <input
-                                            type="number"
-                                            className="form-control"
-                                            id="customAmount"
-                                            value={customAmount}
-                                            onChange={(e) => setCustomAmount(e.target.value)}
-                                            placeholder="Enter amount"
-                                            min="1"
-                                        />
-                                    </div>
-                                )}
+                        {/* DONATION AMOUNT */}
+                        <div className="donation-section-heading mt-4">
+                            <i className="fas fa-rupee-sign"></i>
+                            Choose Your Contribution
+                        </div>
 
-                                <div className="col-12">
-                                    <label htmlFor="donationPurpose" className="form-label fw-semibold">
-                                        <i className="fas fa-tag me-1"></i> Purpose
-                                    </label>
-                                    <select
-                                        className="form-select"
-                                        id="donationPurpose"
-                                        name="purpose"
-                                        value={form.purpose}
-                                        onChange={handleChange}
-                                    >
-                                        {PURPOSES.map((p) => (
-                                            <option key={p} value={p}>
-                                                {p}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                        <div className="donation-amount-grid">
+                            {AMOUNTS.map((item) => (
+                                <button
+                                    type="button"
+                                    key={item.value}
+                                    className={`donation-amount-btn ${
+                                        amount === item.value ? 'active' : ''
+                                    }`}
+                                    onClick={() => {
+                                        setAmount(item.value);
+                                        setError('');
+                                    }}
+                                >
+                                    {item.value === 'other' && (
+                                        <i className="fas fa-pen me-1"></i>
+                                    )}
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
 
-                                <div className="col-12">
-                                    <label htmlFor="donorMessage" className="form-label fw-semibold">
-                                        <i className="fas fa-comment me-1"></i> Message (optional)
-                                    </label>
-                                    <textarea
-                                        className="form-control"
-                                        id="donorMessage"
-                                        name="message"
-                                        value={form.message}
-                                        onChange={handleChange}
-                                        rows="2"
-                                        placeholder="Your words of encouragement..."
-                                    ></textarea>
-                                </div>
+                        {amount === 'other' && (
+                            <div className="mt-3">
+                                <label className="donation-label">
+                                    Enter Custom Amount (₹)
+                                </label>
 
-                                <div className="col-12">
-                                    <div className="form-check">
-                                        <input
-                                            className="form-check-input"
-                                            type="checkbox"
-                                            id="donorConsent"
-                                            name="consent"
-                                            checked={form.consent}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                        <label className="form-check-label" htmlFor="donorConsent">
-                                            I agree to the{' '}
-                                            <a
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    onOpenModal('terms');
-                                                }}
-                                                style={{ color: '#25671E' }}
-                                            >
-                                                Terms &amp; Conditions
-                                            </a>
-                                            ,{' '}
-                                            <a
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    onOpenModal('pricing');
-                                                }}
-                                                style={{ color: '#25671E' }}
-                                            >
-                                                pricing policy
-                                            </a>{' '}
-                                            and{' '}
-                                            <a
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    onOpenModal('refund');
-                                                }}
-                                                style={{ color: '#25671E' }}
-                                            >
-                                                refund/cancellation
-                                            </a>{' '}
-                                            terms.
-                                        </label>
-                                    </div>
-                                </div>
-
-                                {error && (
-                                    <div className="col-12">
-                                        <div className="alert alert-danger py-2 mb-0">{error}</div>
-                                    </div>
-                                )}
-
-                                <div className="col-12">
-                                    <button
-                                        type="submit"
-                                        className="btn-submit-donate w-100"
-                                        disabled={processing}
-                                    >
-                                        <i className="fas fa-credit-card me-2"></i>{' '}
-                                        {processing ? 'Processing...' : 'Pay with ICICI Bank'}
-                                    </button>
+                                <div className="donation-input-wrap">
+                                    <i className="fas fa-rupee-sign"></i>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={customAmount}
+                                        onChange={(e) => {
+                                            setCustomAmount(e.target.value);
+                                            setError('');
+                                        }}
+                                        placeholder="Enter your contribution"
+                                        required
+                                    />
                                 </div>
                             </div>
-                        </form>
-                    </div>
+                        )}
 
-                    <div className="modal-footer">
-                        <button type="button" className="btn-close-donate" onClick={onClose}>
-                            <i className="fas fa-times me-1"></i>Close
+                        <div className="donation-summary">
+                            <div>
+                                <span>Your Contribution</span>
+                                <small>Every contribution makes a difference.</small>
+                            </div>
+
+                            <strong>
+                                ₹{formatAmount(selectedAmount || 0)}
+                            </strong>
+                        </div>
+
+                        {/* PURPOSE */}
+                        <div className="donation-section-heading mt-4">
+                            <i className="fas fa-seedling"></i>
+                            Donation Purpose
+                        </div>
+
+                        <div className="donation-input-wrap donation-select-wrap">
+                            <i className="fas fa-hand-holding-heart"></i>
+
+                            <select
+                                name="purpose"
+                                value={form.purpose}
+                                onChange={handleChange}
+                            >
+                                {PURPOSES.map((purpose) => (
+                                    <option key={purpose} value={purpose}>
+                                        {purpose}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* MESSAGE */}
+                        <div className="donation-section-heading mt-4">
+                            <i className="fas fa-comment-dots"></i>
+                            Your Message
+                            <small>(Optional)</small>
+                        </div>
+
+                        <textarea
+                            className="donation-message"
+                            name="message"
+                            rows="3"
+                            value={form.message}
+                            onChange={handleChange}
+                            placeholder="Write a message of encouragement..."
+                        />
+
+                        {/* CONSENT */}
+                        <div className="donation-consent">
+                            <input
+                                type="checkbox"
+                                id="donorConsent"
+                                name="consent"
+                                checked={form.consent}
+                                onChange={handleChange}
+                            />
+
+                            <label htmlFor="donorConsent">
+                                I agree to the{' '}
+                                <button type="button" onClick={() => openPolicy('terms')}>
+                                    Terms & Conditions
+                                </button>
+                                ,{' '}
+                                <button type="button" onClick={() => openPolicy('pricing')}>
+                                    Pricing Policy
+                                </button>
+                                {' '}and{' '}
+                                <button type="button" onClick={() => openPolicy('refund')}>
+                                    Refund / Cancellation Policy
+                                </button>.
+                            </label>
+                        </div>
+
+                        {/* ERROR */}
+                        {error && (
+                            <div className="donation-error">
+                                <i className="fas fa-exclamation-circle"></i>
+                                {error}
+                            </div>
+                        )}
+
+                        {/* PAYMENT */}
+                        <button
+                            type="submit"
+                            className="donation-payment-btn"
+                            disabled={processing}
+                        >
+                            {processing ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Processing...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-lock"></i>
+                                    Pay ₹{formatAmount(selectedAmount || 0)} with ICICI Bank
+                                    <i className="fas fa-arrow-right"></i>
+                                </>
+                            )}
                         </button>
+
+                        <div className="donation-security-note">
+                            <i className="fas fa-shield-alt"></i>
+                            Your information will be used to process your donation.
+                        </div>
                     </div>
+                </form>
+
+                {/* FOOTER */}
+                <div className="donation-modal-footer">
+                    <span>
+                        <i className="fas fa-leaf"></i>
+                        Nature · Education · Community
+                    </span>
+
+                    <button type="button" onClick={onClose}>
+                        Close <i className="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
         </div>

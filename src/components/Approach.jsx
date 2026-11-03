@@ -1,52 +1,100 @@
+
 import React from 'react';
 
 const APPROACH_ITEMS = [
     {
-        icon: 'fa-seedling',
+        id: 'soil',
+        number: '01',
+        icon: 'fa-tint',
         title: 'Soil & Water Stewardship',
-        text: 'Sustainable agriculture, organic farming, rainwater harvesting, and watershed restoration using geospatial insights.',
+        text: 'Promote soil health through sustainable agricultural practices.',
+        detail: 'Encourage organic farming, natural fertilizers, rainwater harvesting and watershed restoration.',
+        className: 'objective-soil',
     },
     {
+        id: 'education',
+        number: '02',
         icon: 'fa-graduation-cap',
         title: 'Education for All',
-        text: 'Scholarships, digital literacy, mentorship programs that bridge the gap for rural and underprivileged youth.',
+        text: 'Scholarships, digital literacy and mentorship programs for rural youth.',
+        detail: 'Bridge educational gaps through learning resources, coaching and career guidance.',
+        className: 'objective-education',
     },
     {
-        icon: 'fa-hand-holding-heart',
+        id: 'livelihood',
+        number: '03',
+        icon: 'fa-seedling',
         title: 'Livelihood & Empowerment',
-        text: 'Supporting farmers, women SHGs, indigenous cattle conservation, and skill-building for resilient communities.',
+        text: 'Supporting farmers, women SHGs and indigenous cattle conservation.',
+        detail: 'Promote sustainable livelihoods, skill development and resilient rural communities.',
+        className: 'objective-livelihood',
     },
     {
+        id: 'leadership',
+        number: '04',
         icon: 'fa-users',
         title: 'Grassroots Leadership',
-        text: 'Youth engagement, community-led development, and participatory governance for lasting change.',
+        text: 'Youth engagement and community-led development.',
+        detail: 'Encourage participatory governance and leadership for lasting social change.',
+        className: 'objective-leadership',
     },
 ];
 
 export default function Approach() {
     return (
-        <section id="approach" className="my-5">
-            <div className="text-center mb-4">
-                <h2 className="section-head-aef">
-                    <i className="fas fa-leaf"></i>Our Approach
-                </h2>
-                <p className="section-subtitle">Nature · Education · Community — in harmony</p>
+        <section id="approach" className="approach-section">
+
+            <div className="approach-heading text-center">
+                <div className="approach-title-frame">
+                    <i className="fas fa-bullseye"></i>
+                    <h2>Our Objectives</h2>
+                </div>
+
+                <p className="section-subtitle">
+                    Four pillars that define our work and impact
+                </p>
             </div>
-            <div className="row g-4">
+
+            <div className="row g-4 objective-grid">
+
                 {APPROACH_ITEMS.map((item) => (
-                    <div className="col-md-6" key={item.title}>
-                        <div className="zig-box fade-up d-flex flex-column flex-md-row align-items-md-center gap-4">
-                            <div className="icon-circle">
-                                <i className={`fas ${item.icon}`}></i>
+                    <div className="col-lg-3 col-md-6" key={item.id}>
+
+                        <article className={`objective-card ${item.className}`}>
+
+                            <div className="objective-card-inner">
+
+                                <span className="objective-number">
+                                    {item.number}
+                                </span>
+
+                                <div className="objective-icon">
+                                    <i className={`fas ${item.icon}`}></i>
+                                </div>
+
+                                <h3>{item.title}</h3>
+
+                                <p className="objective-main-text">
+                                    {item.text}
+                                </p>
+
+                                <div className="objective-divider">
+                                    <span>❧</span>
+                                </div>
+
+                                <p className="objective-detail">
+                                    {item.detail}
+                                </p>
+
                             </div>
-                            <div>
-                                <h5>{item.title}</h5>
-                                <p>{item.text}</p>
-                            </div>
-                        </div>
+
+                        </article>
+
                     </div>
                 ))}
+
             </div>
+
         </section>
     );
 }

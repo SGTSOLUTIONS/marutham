@@ -45,7 +45,7 @@ export default function App() {
         {/* --- Page Rendering Logic --- */}
         {currentPage === 'home' && (
           <>
-            <Hero />
+            <Hero onNavigate={handleNavigate} />
             <Approach />
             <About />
           </>
@@ -66,7 +66,10 @@ export default function App() {
           <FindingsPage onNavigate={handleNavigate} />
         )}
 
-        <Footer onOpenModal={openPolicy} />
+        <Footer
+          onOpenModal={openPolicy}
+          onNavigate={handleNavigate}
+        />
       </div>
 
       <DonationModal

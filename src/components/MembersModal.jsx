@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 
 const MEMBERS = [
@@ -15,42 +16,155 @@ const MEMBERS = [
 ];
 
 export default function MembersModal({ show, onClose }) {
+
     useEffect(() => {
-        const handleEsc = (e) => e.key === 'Escape' && onClose();
-        if (show) document.addEventListener('keydown', handleEsc);
-        return () => document.removeEventListener('keydown', handleEsc);
+        if (!show) return;
+
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        document.addEventListener('keydown', handleEsc);
+
+        return () => {
+            document.removeEventListener('keydown', handleEsc);
+            document.body.style.overflow = previousOverflow;
+        };
     }, [show, onClose]);
 
     if (!show) return null;
 
     return (
-        <div className="modal fade show d-block" style={{ background: 'rgba(0,0,0,0.5)', zIndex: 1060 }} onClick={onClose}>
-            <div className="modal-dialog modal-dialog-centered modal-lg" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-content" style={{ background: 'rgba(247, 240, 240, 0.96)', backdropFilter: 'blur(20px)', borderRadius: '56px 12px 56px 12px' }}>
-                    <div className="modal-header" style={{ borderBottom: '2px solid rgba(242, 181, 11, 0.20)', padding: '1.4rem 2rem' }}>
-                        <h5 className="modal-title" style={{ fontFamily: "'Playfair Display', serif", color: '#1a3d14', fontWeight: 700 }}>
-                            <i className="fas fa-users me-2" style={{ color: '#48A111' }}></i> All Members
-                            <span style={{ fontSize: '0.9rem', fontWeight: 400, opacity: 0.6, fontFamily: "'Inter', sans-serif" }}> — Marutham Foundation</span>
-                        </h5>
-                        <button type="button" className="btn-close" onClick={onClose} aria-label="Close"></button>
-                    </div>
-                    <div className="modal-body" style={{ padding: '2rem', maxHeight: '70vh', overflowY: 'auto' }}>
-                        {MEMBERS.map((member) => (
-                            <div className="member-item" key={member.name}>
-                                <div className="member-avatar-sm"><i className={`fas ${member.icon}`}></i></div>
-                                <div className="member-info">
-                                    <h6>{member.name}</h6>
-                                    <div className="member-role">{member.role}</div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="modal-footer" style={{ borderTop: '2px solid rgba(242, 181, 11, 0.20)' }}>
-                        <button type="button" className="btn-close-donate" onClick={onClose}>
-                            <i className="fas fa-times me-1"></i>Close
-                        </button>
-                    </div>
+        <div
+            className="heritage-modal-overlay"
+            onClick={onClose}
+            role="presentation"
+        >
+            <div
+                className="heritage-members-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="members-modal-title"
+                onClick={(e) => e.stopPropagation()}
+            >
+
+                {/* Decorative top ornament */}
+                <div className="members-modal-top-ornament">
+                    <span>❧</span>
+                    <i className="fas fa-leaf"></i>
+                    <span>❧</span>
                 </div>
+
+                {/* Modal Header */}
+                <div className="heritage-modal-header">
+
+                    <div className="members-modal-heading">
+
+                        <div className="members-modal-heading-icon">
+                            <i className="fas fa-users"></i>
+                        </div>
+
+                        <div>
+                            <h2 id="members-modal-title">
+                                Our Foundation Members
+                            </h2>
+
+                            <p>
+                                <span>Marutham Foundation</span>
+                                {' '}· Dedicated People, Shared Purpose
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        className="heritage-modal-close"
+                        onClick={onClose}
+                        aria-label="Close members modal"
+                    >
+                        <i className="fas fa-times"></i>
+                    </button>
+
+                </div>
+
+                {/* Member Count */}
+                <div className="members-count-area">
+                    <span>
+                        <i className="fas fa-users me-2"></i>
+                        Our Members
+                    </span>
+
+                    <strong>{MEMBERS.length} Members</strong>
+                </div>
+
+                {/* Modal Body */}
+                <div className="heritage-modal-body">
+
+                    <div className="members-heritage-grid">
+
+                        {MEMBERS.map((member, index) => (
+                            <article
+                                className="member-heritage-card"
+                                key={member.name}
+                            >
+
+                                <span className="member-card-number">
+                                    {String(index + 1).padStart(2, '0')}
+                                </span>
+
+                                <div className="member-heritage-avatar">
+                                    <i className={`fas ${member.icon}`}></i>
+                                </div>
+
+                                <div className="member-heritage-info">
+
+                                    <h3>{member.name}</h3>
+
+                                    <p>{member.role}</p>
+
+                                </div>
+
+                                <div className="member-card-decoration">
+                                    ❧
+                                </div>
+
+                            </article>
+                        ))}
+
+                    </div>
+
+                </div>
+
+                {/* Modal Footer */}
+                <div className="heritage-modal-footer">
+
+                    <div className="members-footer-quote">
+                        <i className="fas fa-seedling"></i>
+                        Together for Nature, Education & Community
+                    </div>
+
+                    <button
+                        type="button"
+                        className="members-modal-close-btn"
+                        onClick={onClose}
+                    >
+                        <i className="fas fa-times me-2"></i>
+                        Close
+                    </button>
+
+                </div>
+
+                {/* Bottom Ornament */}
+                <div className="members-modal-bottom-ornament">
+                    <span>❧</span>
+                    MARUTHAM FOUNDATION
+                    <span>❧</span>
+                </div>
+
             </div>
         </div>
     );
