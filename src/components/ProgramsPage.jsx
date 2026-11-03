@@ -297,14 +297,16 @@ export default function ProgramsPage({ onNavigate }) {
 
                     <div className="rd-buttons">
 
-                        <button
-                            type="button"
-                            className="rd-explore-btn"
-                        >
-                            <i className="fas fa-map-marked-alt"></i>
-                            Explore R&D Projects
-                            <i className="fas fa-arrow-right"></i>
-                        </button>
+                        
+                    <button
+                       type="button"
+                       onClick={() => onNavigate?.('rd-projects')}
+                       className="rd-explore-btn"
+                    >
+                      <i className="fas fa-map-marked-alt"></i>
+                      Explore R&D Projects
+                      <i className="fas fa-arrow-right"></i>
+                    </button>
 
                         <button
                             type="button"

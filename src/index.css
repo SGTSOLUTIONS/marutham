@@ -5346,3 +5346,341 @@ h6,
     }
 }
 
+
+/* ==========================================
+   MARUTHAM FOUNDATION - HERITAGE NAVBAR
+   Landscape + Forest Green + Antique Gold
+========================================== */
+
+/* Outer landscape frame */
+.navbar-heritage-shell {
+    position: relative;
+    width: 100%;
+    margin: 8px 0 30px;
+    padding: 7px;
+
+    background:
+        linear-gradient(
+            rgba(18, 45, 32, 0.12),
+            rgba(18, 45, 32, 0.12)
+        ),
+        url('/vayal.jpg');
+
+    background-size: cover;
+    background-position: center 45%;
+
+    border: 2px solid #a88a50;
+    border-radius: 9px;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.30),
+        inset 0 0 0 1px rgba(246, 220, 157, 0.55);
+}
+
+/* Decorative inner corners */
+.navbar-heritage-shell::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(226, 194, 124, 0.65);
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Main navigation panel */
+.navbar-aef {
+    position: relative;
+    z-index: 1;
+
+    background: linear-gradient(
+        110deg,
+        #092b22 0%,
+        #143d2e 50%,
+        #0b3025 100%
+    ) !important;
+
+    border: 2px solid #c3a15e !important;
+    border-radius: 5px !important;
+
+    padding: 7px 18px !important;
+    margin: 0 !important;
+
+    min-height: 58px;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(235, 207, 146, 0.20),
+        0 3px 10px rgba(0, 0, 0, 0.25) !important;
+
+    backdrop-filter: none;
+}
+
+/* Brand */
+.navbar-aef .heritage-brand {
+    padding: 0;
+    margin-right: 25px;
+
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navbar-aef .heritage-brand-name {
+    display: inline-block;
+
+    color: #ead59a !important;
+
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+
+    letter-spacing: 0.2px;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+
+    transition: 0.3s ease;
+}
+
+.navbar-aef .heritage-brand:hover .heritage-brand-name {
+    color: #f8e8b8 !important;
+}
+
+/* Navigation links */
+.navbar-aef .nav-link-aef {
+    position: relative;
+
+    color: #f0e5c6 !important;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 500;
+
+    padding: 9px 10px !important;
+
+    border-radius: 3px;
+    text-decoration: none;
+
+    transition: all 0.3s ease;
+}
+
+/* Navigation icons */
+.navbar-aef .nav-link-aef i {
+    color: #d7bc7c;
+    font-size: 0.78rem;
+}
+
+/* Hover */
+.navbar-aef .nav-link-aef:hover {
+    color: #f5d68d !important;
+    background: rgba(221, 185, 111, 0.10);
+}
+
+/* Active page */
+.navbar-aef .nav-link-aef.active {
+    color: #f7df9f !important;
+    font-weight: 700;
+    background: rgba(214, 179, 103, 0.12);
+}
+
+/* Gold underline */
+.navbar-aef .nav-link-aef::after {
+    content: "";
+    position: absolute;
+
+    left: 50%;
+    bottom: 3px;
+
+    width: 0;
+    height: 2px;
+
+    background: #d8b76e;
+
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.navbar-aef .nav-link-aef:hover::after,
+.navbar-aef .nav-link-aef.active::after {
+    width: 65%;
+}
+
+/* Donate button */
+.navbar-aef .btn-donate-aef {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 9px 22px !important;
+
+    background: linear-gradient(
+        135deg,
+        #e5c477,
+        #b58b43
+    ) !important;
+
+    color: #17392a !important;
+
+    border: 1px solid #f1d89a !important;
+    border-radius: 30px !important;
+
+    font-family: 'Inter', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+
+    transition: all 0.3s ease;
+}
+
+.navbar-aef .btn-donate-aef i {
+    color: #17392a;
+}
+
+.navbar-aef .btn-donate-aef:hover {
+    background: linear-gradient(
+        135deg,
+        #f4dfa8,
+        #d1ad64
+    ) !important;
+
+    color: #0b3025 !important;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.30);
+}
+
+/* Mobile menu toggle */
+.navbar-aef .heritage-toggler {
+    border: 1px solid #c5a365 !important;
+    border-radius: 5px;
+
+    padding: 6px 11px !important;
+
+    color: #e9d49c;
+    background: rgba(218, 187, 121, 0.08);
+}
+
+.navbar-aef .heritage-toggler i {
+    color: #f0d99e !important;
+    font-size: 1.3rem;
+}
+
+.navbar-aef .heritage-toggler:focus {
+    box-shadow: 0 0 0 2px rgba(218, 187, 121, 0.25) !important;
+}
+
+/* ==========================================
+   TABLET AND MOBILE
+========================================== */
+
+@media (max-width: 991.98px) {
+
+    .navbar-heritage-shell {
+        padding: 5px;
+        margin: 5px 0 22px;
+    }
+
+    .navbar-aef {
+        padding: 9px 12px !important;
+    }
+
+    .navbar-aef .navbar-collapse {
+        margin-top: 12px;
+        padding: 12px;
+
+        background: rgba(5, 35, 26, 0.97);
+
+        border: 1px solid rgba(213, 178, 105, 0.45);
+        border-radius: 6px;
+    }
+
+    .navbar-aef .navbar-nav {
+        align-items: stretch !important;
+        gap: 5px !important;
+    }
+
+    .navbar-aef .nav-link-aef {
+        display: block;
+        padding: 10px 12px !important;
+        font-size: 0.9rem;
+    }
+
+    .navbar-aef .nav-link-aef::after {
+        display: none;
+    }
+
+    .navbar-aef .nav-link-aef.active {
+        background: rgba(218, 183, 108, 0.15);
+        border-left: 3px solid #d8b76e;
+    }
+
+    .navbar-aef .btn-donate-aef {
+        width: 100%;
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .navbar-heritage-shell {
+        margin: 5px 0 18px;
+        padding: 4px;
+    }
+
+    .navbar-aef {
+        padding: 8px !important;
+    }
+
+    .navbar-aef .heritage-brand-name {
+        font-size: 1.12rem;
+    }
+
+    .navbar-aef .heritage-brand {
+        margin-right: 8px;
+    }
+
+    .navbar-aef .heritage-toggler {
+        padding: 5px 9px !important;
+    }
+}
+
+
+/* Foundation Logo */
+.navbar-aef .heritage-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.heritage-logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #d9b45b;
+    padding: 2px;
+}
+
+.navbar-aef .heritage-brand-name {
+    color: #ead59a !important;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .navbar-aef .heritage-logo {
+        width: 36px;
+        height: 36px;
+    }
+
+    .navbar-aef .heritage-brand-name {
+        font-size: 1rem;
+    }
+}

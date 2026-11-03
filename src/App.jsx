@@ -1,19 +1,27 @@
+
 import React, { useState } from 'react';
+
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Approach from './components/Approach';
 import About from './components/About';
 import Footer from './components/Footer';
+
 import DonationModal from './components/DonationModal';
 import PolicyModals from './components/PolicyModals';
 import AboutPage from './components/AboutPage';
 import MembersModal from './components/MembersModal';
-import ContactPage from './components/ContactPage'; // <-- New
-import GalleryPage from './components/GalleryPage'; // <-- New
-import FindingsPage from './components/FindingsPage'; // <-- New
-import ProgramsPage from './components/ProgramsPage'; // <-- New
+import ContactPage from './components/ContactPage';
+import GalleryPage from './components/GalleryPage';
+import FindingsPage from './components/FindingsPage';
+import ProgramsPage from './components/ProgramsPage';
+
+// NEW GIS EXPLORER
+import GISExplorer from './components/GISExplorer';
+
 import { useFadeAnimation } from './hooks/useFadeAnimation';
 import './index.css';
+
 export default function App() {
   const [showDonation, setShowDonation] = useState(false);
   const [showMembers, setShowMembers] = useState(false);
@@ -32,17 +40,29 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
+  // Full-screen GIS Explorer
+  if (currentPage === 'rd-projects') {
+    return (
+      <GISExplorer
+        onBack={() => handleNavigate('programs')}
+      />
+    );
+  }
+
   return (
     <>
       <div className="bg-wrapper"></div>
+
       <div className="container-custom">
+
         <Navbar
           onOpenDonate={() => setShowDonation(true)}
           currentPage={currentPage}
           onNavigate={handleNavigate}
         />
 
-        {/* --- Page Rendering Logic --- */}
+        {/* PAGE RENDERING */}
+
         {currentPage === 'home' && (
           <>
             <Hero onNavigate={handleNavigate} />
@@ -50,18 +70,25 @@ export default function App() {
             <About />
           </>
         )}
+
         {currentPage === 'about' && (
-          <AboutPage onOpenMembersModal={() => setShowMembers(true)} />
+          <AboutPage
+            onOpenMembersModal={() => setShowMembers(true)}
+          />
         )}
+
         {currentPage === 'programs' && (
           <ProgramsPage onNavigate={handleNavigate} />
         )}
+
         {currentPage === 'gallery' && (
           <GalleryPage />
         )}
+
         {currentPage === 'contact' && (
           <ContactPage />
         )}
+
         {currentPage === 'findings' && (
           <FindingsPage onNavigate={handleNavigate} />
         )}
@@ -70,6 +97,7 @@ export default function App() {
           onOpenModal={openPolicy}
           onNavigate={handleNavigate}
         />
+
       </div>
 
       <DonationModal
@@ -78,9 +106,15 @@ export default function App() {
         onOpenModal={openPolicy}
       />
 
-      <PolicyModals activePolicy={activePolicy} onClose={() => setActivePolicy(null)} />
+      <PolicyModals
+        activePolicy={activePolicy}
+        onClose={() => setActivePolicy(null)}
+      />
 
-      <MembersModal show={showMembers} onClose={() => setShowMembers(false)} />
+      <MembersModal
+        show={showMembers}
+        onClose={() => setShowMembers(false)}
+      />
     </>
   );
 }
