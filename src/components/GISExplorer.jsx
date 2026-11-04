@@ -1,7 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import 'leaflet.vectorgrid';
 import proj4 from 'proj4';
 import 'leaflet/dist/leaflet.css';
+
+// Candidate projection for River Basin source coordinates.
+// The file's EPSG:4326 label conflicts with its metre-scale coordinates.
+// This UTM Zone 43N definition is a working hypothesis and must be checked
+// visually against the known Tamil Nadu boundary layers.
+proj4.defs(
+    'EPSG:32643',
+    '+proj=utm +zone=43 +datum=WGS84 +units=m +no_defs +type=crs'
+);
+
 
 export default function GISExplorer({ onBack }) {
     const mapRef = useRef(null);
@@ -12,6 +23,10 @@ export default function GISExplorer({ onBack }) {
     const blockLayerRef = useRef(null);
     const firkaLayerRef = useRef(null);
     const villageLayerRef = useRef(null);
+    const roadLayerRef = useRef(null);
+    const drainageLayerRef = useRef(null);
+    const riverBasinLayerRef = useRef(null);
+    const geologyLayerRef = useRef(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -21,12 +36,20 @@ export default function GISExplorer({ onBack }) {
     const [blockCount, setBlockCount] = useState(0);
     const [firkaCount, setFirkaCount] = useState(0);
     const [villageCount, setVillageCount] = useState(0);
+    const [roadCount, setRoadCount] = useState(0);
+    const [drainageCount, setDrainageCount] = useState(0);
+    const [riverBasinCount, setRiverBasinCount] = useState(0);
+    const [geologyCount, setGeologyCount] = useState(0);
 
     const [showDistricts, setShowDistricts] = useState(true);
     const [showTaluks, setShowTaluks] = useState(false);
     const [showBlocks, setShowBlocks] = useState(false);
     const [showFirkas, setShowFirkas] = useState(false);
     const [showVillages, setShowVillages] = useState(false);
+    const [showRoads, setShowRoads] = useState(false);
+    const [showDrainage, setShowDrainage] = useState(false);
+    const [showRiverBasins, setShowRiverBasins] = useState(false);
+    const [showGeology, setShowGeology] = useState(false);
 
     // Read a feature name from the available GeoJSON property fields.
     const getFeatureName = (feature) => {
@@ -54,9 +77,21 @@ export default function GISExplorer({ onBack }) {
             'VILLNAME',
             'VILLAGE',
             'VILL',
+            'ROAD_NAME',
+            'ROADNAME',
+            'RD_NAME',
+            'RDNAME',
+            'ROAD',
+            'STREET_NAME',
+            'STREET',
             'NAME',
             'name',
-            'VILLAGE_NAME'
+            'VILLAGE_NAME',
+            'BASIN',
+            'SubBasin',
+            'SUBBASIN',
+            'LITHO_UNIT',
+            'ROCK_TYPE'
         ];
 
         for (const key of possibleNames) {
@@ -84,20 +119,20 @@ export default function GISExplorer({ onBack }) {
 
     // Convert EPSG:3857 coordinates to EPSG:4326.
     // Keep this only if the source GeoJSON files are actually EPSG:3857.
-    const transformCoordinates = (coords) => {
+    const transformCoordinates = (coords, sourceCrs = 'EPSG:3857') => {
         if (Array.isArray(coords) && typeof coords[0] === 'number') {
-            return proj4(
-                'EPSG:3857',
-                'EPSG:4326',
-                coords.slice(0, 2)
-            ).concat(coords.slice(2));
+            const transformed = sourceCrs === 'EPSG:3857'
+                ? proj4('EPSG:3857', 'EPSG:4326', coords.slice(0, 2))
+                : coords.slice(0, 2);
+
+            return transformed.concat(coords.slice(2));
         }
 
         if (!Array.isArray(coords)) {
             return coords;
         }
 
-        return coords.map(transformCoordinates);
+        return coords.map((child) => transformCoordinates(child, sourceCrs));
     };
 
     const createGeoJSONLayer = (geojson, type) => {
@@ -106,6 +141,13 @@ export default function GISExplorer({ onBack }) {
         const isBlock = type === 'block';
         const isFirka = type === 'firka';
         const isVillage = type === 'village';
+        const isRoad = type === 'road';
+        const isRiverBasin = type === 'riverbasin';
+        const isGeology = type === 'geology';
+        // Existing boundary datasets use EPSG:3857.
+        // River Basin uses a provisional UTM Zone 43N transform because its
+        // coordinate values are metres despite the GeoJSON EPSG:4326 label.
+        const sourceCrs = isRiverBasin ? 'EPSG:32643' : 'EPSG:3857';
 
         // Clone the response so the original parsed object is not mutated.
         const safeGeoJSON = {
@@ -116,12 +158,42 @@ export default function GISExplorer({ onBack }) {
                     ? {
                         ...feature.geometry,
                         coordinates: transformCoordinates(
-                            feature.geometry.coordinates
+                            feature.geometry.coordinates,
+                            sourceCrs
                         )
                     }
                     : feature.geometry
             }))
         };
+
+        // TEMPORARY DEBUG: print one transformed River Basin coordinate.
+        // This runs once per layer creation, not once for every polygon vertex.
+        if (isRiverBasin) {
+            const findFirstPosition = (coordinates) => {
+                if (
+                    Array.isArray(coordinates) &&
+                    coordinates.length >= 2 &&
+                    typeof coordinates[0] === 'number' &&
+                    typeof coordinates[1] === 'number'
+                ) {
+                    return coordinates.slice(0, 2);
+                }
+
+                if (Array.isArray(coordinates)) {
+                    for (const child of coordinates) {
+                        const position = findFirstPosition(child);
+                        if (position) return position;
+                    }
+                }
+
+                return null;
+            };
+
+            console.log(
+                'River Basin transformed coordinate [longitude, latitude]:',
+                findFirstPosition(safeGeoJSON.features?.[0]?.geometry?.coordinates)
+            );
+        }
 
         const layerStyle = {
             district: {
@@ -153,6 +225,25 @@ export default function GISExplorer({ onBack }) {
                 weight: 0.9,
                 fillColor: '#67e8f9',
                 fillOpacity: 0.045
+            },
+            riverbasin: {
+                color: '#1d4ed8',
+                weight: 1.8,
+                fillColor: '#60a5fa',
+                fillOpacity: 0.16
+            },
+            geology: {
+                color: '#92400e',
+                weight: 1.1,
+                fillColor: '#d6a756',
+                fillOpacity: 0.24
+            },
+            road: {
+                color: '#d97706',
+                weight: 2.2,
+                opacity: 0.9,
+                fillColor: '#d97706',
+                fillOpacity: 0
             }
         }[type];
 
@@ -176,7 +267,13 @@ export default function GISExplorer({ onBack }) {
                                 ? 'Firka Boundary'
                                 : isVillage
                                     ? 'Village Boundary'
-                                    : 'Boundary';
+                                    : isRiverBasin
+                                        ? 'River Basin / Sub-Basin'
+                                        : isGeology
+                                            ? 'Geological Formation'
+                                            : isRoad
+                                            ? 'Road / Street'
+                                            : 'Boundary';
 
                 const propertyRows = Object.entries(properties)
                     .filter(([, value]) =>
@@ -357,6 +454,10 @@ export default function GISExplorer({ onBack }) {
                 blockLayerRef.current = null;
                 firkaLayerRef.current = null;
                 villageLayerRef.current = null;
+                roadLayerRef.current = null;
+                drainageLayerRef.current = null;
+                riverBasinLayerRef.current = null;
+                geologyLayerRef.current = null;
                 mapInstance.current = null;
 
                 // Remove the Leaflet map only if its container is initialized.
@@ -591,7 +692,385 @@ export default function GISExplorer({ onBack }) {
         };
     }, [showVillages]);
 
-    // Search for a district, taluk, block or loaded firka by its feature name.
+    // Roads are served as MVT/PBF tiles from the local MBTiles tile server.
+    // Only tiles needed for the current map view and zoom are requested.
+    useEffect(() => {
+        const map = mapInstance.current;
+
+        if (!map) return undefined;
+
+        if (!showRoads) {
+            if (roadLayerRef.current && map.hasLayer(roadLayerRef.current)) {
+                map.removeLayer(roadLayerRef.current);
+            }
+            return undefined;
+        }
+
+        // Reuse the existing vector-tile layer when toggled back on.
+        if (roadLayerRef.current) {
+            if (!map.hasLayer(roadLayerRef.current)) {
+                roadLayerRef.current.addTo(map);
+            }
+            return undefined;
+        }
+
+        if (!L.vectorGrid || typeof L.vectorGrid.protobuf !== 'function') {
+            setError(
+                'Roads: Leaflet.VectorGrid did not load. Check the leaflet.vectorgrid package import.'
+            );
+            setShowRoads(false);
+            return undefined;
+        }
+
+        const roadTileLayer = L.vectorGrid.protobuf(
+            'http://localhost:8000/tiles/{z}/{x}/{y}.pbf',
+            {
+                minZoom: 5,
+                maxZoom: 19,
+                maxNativeZoom: 16,
+                interactive: true,
+                vectorTileLayerStyles: {
+                    roads: (properties) => {
+                        const roadType = String(properties?.TYPE || '').toUpperCase();
+                        const isHighway =
+                            roadType.includes('HIGHWAY') ||
+                            roadType.includes('NATIONAL');
+
+                        return {
+                            color: isHighway ? '#b45309' : '#d97706',
+                            weight: isHighway ? 2.8 : 1.7,
+                            opacity: 0.9,
+                            lineCap: 'round',
+                            lineJoin: 'round'
+                        };
+                    }
+                }
+            }
+        );
+
+        // VectorGrid emits feature properties on its click event.
+        roadTileLayer.on('click', (event) => {
+            const properties = event.layer?.properties || {};
+
+            const title =
+                properties.TYPE ||
+                properties.SUB_CAT ||
+                'Road / Street';
+
+            const propertyRows = Object.entries(properties)
+                .filter(([, value]) =>
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ''
+                )
+                .slice(0, 12)
+                .map(([key, value]) =>
+                    `<div style="margin:3px 0"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(value)}</div>`
+                )
+                .join('');
+
+            L.popup({ maxWidth: 320 })
+                .setLatLng(event.latlng)
+                .setContent(`
+                    <div style="min-width:180px">
+                        <h4 style="color:#14532d;margin:0 0 8px">
+                            ${escapeHtml(title)}
+                        </h4>
+                        <p style="margin:0 0 8px">Road / Street</p>
+                        ${propertyRows || '<div>No road attributes available.</div>'}
+                    </div>
+                `)
+                .openOn(map);
+        });
+
+        roadTileLayer.on('tileerror', (event) => {
+            console.warn('Road vector tile request failed:', event);
+        });
+
+        roadLayerRef.current = roadTileLayer;
+        roadTileLayer.addTo(map);
+
+        // MVT is tiled data; a statewide feature count is not available
+        // without downloading and decoding every tile.
+        setRoadCount('MVT');
+
+        console.log('Roads vector-tile layer enabled.');
+
+        return undefined;
+    }, [showRoads]);
+
+    // Drainage is served as MVT/PBF tiles. Only visible map tiles are requested.
+    // DESC distinguishes CANAL from SEASONAL STREAM.
+    useEffect(() => {
+        const map = mapInstance.current;
+
+        if (!map) return undefined;
+
+        if (!showDrainage) {
+            if (
+                drainageLayerRef.current &&
+                map.hasLayer(drainageLayerRef.current)
+            ) {
+                map.removeLayer(drainageLayerRef.current);
+            }
+
+            return undefined;
+        }
+
+        // Reuse the vector-tile layer after the first successful creation.
+        if (drainageLayerRef.current) {
+            if (!map.hasLayer(drainageLayerRef.current)) {
+                drainageLayerRef.current.addTo(map);
+            }
+
+            return undefined;
+        }
+
+        if (!L.vectorGrid || typeof L.vectorGrid.protobuf !== 'function') {
+            setError(
+                'Drainage: Leaflet.VectorGrid did not load. Check the leaflet.vectorgrid package import.'
+            );
+            setShowDrainage(false);
+            return undefined;
+        }
+
+        const drainageTileLayer = L.vectorGrid.protobuf(
+            'http://localhost:8000/tiles/drainage/{z}/{x}/{y}.pbf',
+            {
+                minZoom: 5,
+                maxZoom: 19,
+                maxNativeZoom: 16,
+                interactive: true,
+                vectorTileLayerStyles: {
+                    drainage: (properties) => {
+                        const description = String(
+                            properties?.DESC || ''
+                        ).toUpperCase();
+
+                        const isSeasonalStream =
+                            description.includes('SEASONAL');
+
+                        return {
+                            color: isSeasonalStream ? '#06b6d4' : '#2563eb',
+                            weight: isSeasonalStream ? 1.8 : 2.4,
+                            opacity: 0.95,
+                            lineCap: 'round',
+                            lineJoin: 'round'
+                        };
+                    }
+                }
+            }
+        );
+
+        drainageTileLayer.on('click', (event) => {
+            const properties = event.layer?.properties || {};
+            const description = String(
+                properties.DESC || 'Drainage'
+            );
+
+            const propertyRows = Object.entries(properties)
+                .filter(([, value]) =>
+                    value !== null &&
+                    value !== undefined &&
+                    value !== ''
+                )
+                .slice(0, 12)
+                .map(([key, value]) =>
+                    `<div style="margin:3px 0"><strong>${escapeHtml(key)}:</strong> ${escapeHtml(value)}</div>`
+                )
+                .join('');
+
+            L.popup({ maxWidth: 320 })
+                .setLatLng(event.latlng)
+                .setContent(`
+                    <div style="min-width:180px">
+                        <h4 style="color:#14532d;margin:0 0 8px">
+                            ${escapeHtml(description)}
+                        </h4>
+                        <p style="margin:0 0 8px">Drainage Feature</p>
+                        ${propertyRows || '<div>No drainage attributes available.</div>'}
+                    </div>
+                `)
+                .openOn(map);
+        });
+
+        drainageTileLayer.on('tileerror', (event) => {
+            console.warn('Drainage vector tile request failed:', event);
+        });
+
+        drainageLayerRef.current = drainageTileLayer;
+        drainageTileLayer.addTo(map);
+
+        // MVT is tiled data; the statewide feature count is not available
+        // without downloading and decoding every tile.
+        setDrainageCount('MVT');
+
+        console.log('Drainage vector-tile layer enabled.');
+
+        return undefined;
+    }, [showDrainage]);
+
+    // River Basins are loaded directly from GeoJSON only when enabled.
+    // The coordinates are transformed from UTM Zone 43N to WGS84.
+    useEffect(() => {
+        const map = mapInstance.current;
+
+        if (!map) return undefined;
+
+        if (!showRiverBasins) {
+            if (
+                riverBasinLayerRef.current &&
+                map.hasLayer(riverBasinLayerRef.current)
+            ) {
+                map.removeLayer(riverBasinLayerRef.current);
+            }
+
+            return undefined;
+        }
+
+        if (riverBasinLayerRef.current) {
+            if (!map.hasLayer(riverBasinLayerRef.current)) {
+                riverBasinLayerRef.current.addTo(map);
+            }
+            return undefined;
+        }
+
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const loadRiverBasins = async () => {
+            try {
+                const response = await fetch(
+                    '/data/TN_River_Basin_Sub_Basin.geojson',
+                    { signal: controller.signal }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}: Unable to load TN_River_Basin_Sub_Basin.geojson`
+                    );
+                }
+
+                const geojson = await response.json();
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                if (
+                    !geojson ||
+                    geojson.type !== 'FeatureCollection' ||
+                    !Array.isArray(geojson.features)
+                ) {
+                    throw new Error(
+                        'Invalid TN_River_Basin_Sub_Basin.geojson FeatureCollection'
+                    );
+                }
+
+                const layer = createGeoJSONLayer(geojson, 'riverbasin');
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                riverBasinLayerRef.current = layer;
+                setRiverBasinCount(geojson.features.length);
+                layer.addTo(map);
+
+                console.log(
+                    `River Basins layer loaded: ${geojson.features.length} features`
+                );
+            } catch (err) {
+                if (cancelled || err.name === 'AbortError') return;
+
+                console.error('River Basins layer error:', err);
+
+                setError((previous) =>
+                    previous
+                        ? `${previous}\\nRiver Basins: ${err.message}`
+                        : `River Basins: ${err.message}`
+                );
+
+                setShowRiverBasins(false);
+            }
+        };
+
+        loadRiverBasins();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [showRiverBasins]);
+
+    // Geology is loaded directly from GeoJSON only when enabled.
+    // Source coordinates are Web Mercator (EPSG:3857), matching the other boundary layers.
+    useEffect(() => {
+        const map = mapInstance.current;
+
+        if (!map) return undefined;
+
+        if (!showGeology) {
+            if (geologyLayerRef.current && map.hasLayer(geologyLayerRef.current)) {
+                map.removeLayer(geologyLayerRef.current);
+            }
+            return undefined;
+        }
+
+        if (geologyLayerRef.current) {
+            if (!map.hasLayer(geologyLayerRef.current)) {
+                geologyLayerRef.current.addTo(map);
+            }
+            return undefined;
+        }
+
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const loadGeology = async () => {
+            try {
+                const response = await fetch('/data/TN_Geology.geojson', {
+                    signal: controller.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Unable to load TN_Geology.geojson`);
+                }
+
+                const geojson = await response.json();
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                if (!geojson || geojson.type !== 'FeatureCollection' || !Array.isArray(geojson.features)) {
+                    throw new Error('Invalid TN_Geology.geojson FeatureCollection');
+                }
+
+                const layer = createGeoJSONLayer(geojson, 'geology');
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                geologyLayerRef.current = layer;
+                setGeologyCount(geojson.features.length);
+                layer.addTo(map);
+
+                console.log(`Geology layer loaded: ${geojson.features.length} features`);
+            } catch (err) {
+                if (cancelled || err.name === 'AbortError') return;
+
+                console.error('Geology layer error:', err);
+                setError((previous) => previous
+                    ? `${previous}\\nGeology: ${err.message}`
+                    : `Geology: ${err.message}`
+                );
+                setShowGeology(false);
+            }
+        };
+
+        loadGeology();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [showGeology]);
+
+    // Search boundary GeoJSON layers by feature name. Vector tiles are not iterated here.
     const handleSearch = (event) => {
         const value = event.target.value.trim().toLowerCase();
         const map = mapInstance.current;
@@ -680,7 +1159,7 @@ export default function GISExplorer({ onBack }) {
                 <input
                     className="gis-search"
                     type="text"
-                    placeholder="Search district, taluk, block, firka or village..."
+                    placeholder="Search district, taluk, block, firka, village or road..." 
                     onChange={handleSearch}
                 />
 
@@ -797,14 +1276,90 @@ export default function GISExplorer({ onBack }) {
                         </span>
                     </label>
 
+                    {/* ROADS - vector tiles are requested for the current map view */}
+                    <label className="gis-layer-row">
+                        <span className="gis-layer-color orange"></span>
+                        <span className="gis-layer-icon">↝</span>
+                        <span className="gis-layer-name">Roads</span>
+                        <small>FLOW</small>
+
+                        <input
+                            type="checkbox"
+                            checked={showRoads}
+                            onChange={(event) =>
+                                setShowRoads(event.target.checked)
+                            }
+                        />
+
+                        <span className="gis-layer-count">
+                            {roadCount || (showRoads ? '...' : 'OFF')}
+                        </span>
+                    </label>
+
+                    {/* DRAINAGE - vector tiles are requested for the current map view */}
+                    <label className="gis-layer-row">
+                        <span className="gis-layer-color cyan"></span>
+                        <span className="gis-layer-icon">≋</span>
+                        <span className="gis-layer-name">Drainage</span>
+                        <small>FLOW</small>
+
+                        <input
+                            type="checkbox"
+                            checked={showDrainage}
+                            onChange={(event) =>
+                                setShowDrainage(event.target.checked)
+                            }
+                        />
+
+                        <span className="gis-layer-count">
+                            {drainageCount || (showDrainage ? '...' : 'OFF')}
+                        </span>
+                    </label>
+
+                    {/* RIVER BASINS - direct GeoJSON, loaded on demand */}
+                    <label className="gis-layer-row">
+                        <span className="gis-layer-color blue"></span>
+                        <span className="gis-layer-icon">▦</span>
+                        <span className="gis-layer-name">River Basins</span>
+                        <small>WATER</small>
+
+                        <input
+                            type="checkbox"
+                            checked={showRiverBasins}
+                            onChange={(event) =>
+                                setShowRiverBasins(event.target.checked)
+                            }
+                        />
+
+                        <span className="gis-layer-count">
+                            {riverBasinCount > 0
+                                ? riverBasinCount
+                                : showRiverBasins
+                                    ? '...'
+                                    : 'OFF'}
+                        </span>
+                    </label>
+
+                    {/* GEOLOGY - direct GeoJSON, loaded on demand */}
+                    <label className="gis-layer-row">
+                        <span className="gis-layer-color brown"></span>
+                        <span className="gis-layer-icon">▦</span>
+                        <span className="gis-layer-name">Geology</span>
+                        <small>EARTH</small>
+                        <input
+                            type="checkbox"
+                            checked={showGeology}
+                            onChange={(event) => setShowGeology(event.target.checked)}
+                        />
+                        <span className="gis-layer-count">
+                            {geologyCount > 0 ? geologyCount : showGeology ? '...' : 'OFF'}
+                        </span>
+                    </label>
+
                     {/* OTHER LAYERS - TO BE INTEGRATED */}
                     {[
-                        ['Roads', 'FLOW'],
-                        ['Drainage', 'FLOW'],
-                        ['River Basins', 'WATER'],
                         ['River Tanks', 'WATER'],
-                        ['Soil', 'EARTH'],
-                        ['Geology', 'EARTH']
+                        ['Soil', 'EARTH']
                     ].map(([name, type]) => (
                         <div
                             className="gis-layer-row disabled"
@@ -851,7 +1406,11 @@ export default function GISExplorer({ onBack }) {
                         Taluks: {talukCount} |
                         Blocks: {blockCount} |
                         Firkas: {firkaCount} |
-                        Villages: {villageCount}
+                        Villages: {villageCount} |
+                        Roads: {roadCount} |
+                        Drainage: {drainageCount} |
+                        River Basins: {riverBasinCount} |
+                        Geology: {geologyCount}
                     </span>
                 </div>
             </main>

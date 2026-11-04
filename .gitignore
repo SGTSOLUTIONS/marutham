@@ -23,6 +23,17 @@ dist-ssr
 *.sln
 *.sw?
 
-# Original large GIS files
-public/data/TN_Taluk.geojson
-public/data/TN_Villages.geojson
+# Large original GIS datasets
+/public/data/TN_Roads.geojson
+/public/data/TN_Drainage.geojson
+/public/data/TN_Taluk.geojson
+/public/data/TN_Villages.geojson
+
+# Generated vector tiles
+/public/data/roads.mbtiles
+/public/data/drainage.mbtiles
+
+# Large intermediate projection files
+/public/data/TN_Drainage_4326.geojson
+/public/data/TN_Roads_4326.geojson
+/public/data/TN_Roads_simplified.geojson
