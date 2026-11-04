@@ -10,6 +10,8 @@ export default function GISExplorer({ onBack }) {
     const districtLayerRef = useRef(null);
     const talukLayerRef = useRef(null);
     const blockLayerRef = useRef(null);
+    const firkaLayerRef = useRef(null);
+    const villageLayerRef = useRef(null);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -17,10 +19,14 @@ export default function GISExplorer({ onBack }) {
     const [districtCount, setDistrictCount] = useState(0);
     const [talukCount, setTalukCount] = useState(0);
     const [blockCount, setBlockCount] = useState(0);
+    const [firkaCount, setFirkaCount] = useState(0);
+    const [villageCount, setVillageCount] = useState(0);
 
     const [showDistricts, setShowDistricts] = useState(true);
     const [showTaluks, setShowTaluks] = useState(false);
     const [showBlocks, setShowBlocks] = useState(false);
+    const [showFirkas, setShowFirkas] = useState(false);
+    const [showVillages, setShowVillages] = useState(false);
 
     // Read a feature name from the available GeoJSON property fields.
     const getFeatureName = (feature) => {
@@ -36,6 +42,18 @@ export default function GISExplorer({ onBack }) {
             'BLOCKNAME',
             'BLK_NAME',
             'BLKNAME',
+            'FIRKA_NAME',
+            'FIRKA',
+            'FIRKA_NAM',
+            'FIRKA_NA',
+            'FIRK_NAME',
+            'FIRK',
+            'VILLAGE_NAME',
+            'VILLAGENAME',
+            'VILL_NAME',
+            'VILLNAME',
+            'VILLAGE',
+            'VILL',
             'NAME',
             'name',
             'VILLAGE_NAME'
@@ -86,6 +104,8 @@ export default function GISExplorer({ onBack }) {
         const isDistrict = type === 'district';
         const isTaluk = type === 'taluk';
         const isBlock = type === 'block';
+        const isFirka = type === 'firka';
+        const isVillage = type === 'village';
 
         // Clone the response so the original parsed object is not mutated.
         const safeGeoJSON = {
@@ -121,6 +141,18 @@ export default function GISExplorer({ onBack }) {
                 weight: 1.2,
                 fillColor: '#86efac',
                 fillOpacity: 0.07
+            },
+            firka: {
+                color: '#7c3aed',
+                weight: 1.1,
+                fillColor: '#a78bfa',
+                fillOpacity: 0.06
+            },
+            village: {
+                color: '#0891b2',
+                weight: 0.9,
+                fillColor: '#67e8f9',
+                fillOpacity: 0.045
             }
         }[type];
 
@@ -140,7 +172,11 @@ export default function GISExplorer({ onBack }) {
                         ? 'Taluk Boundary'
                         : isBlock
                             ? 'Block Boundary'
-                            : 'Boundary';
+                            : isFirka
+                                ? 'Firka Boundary'
+                                : isVillage
+                                    ? 'Village Boundary'
+                                    : 'Boundary';
 
                 const propertyRows = Object.entries(properties)
                     .filter(([, value]) =>
@@ -319,6 +355,8 @@ export default function GISExplorer({ onBack }) {
                 districtLayerRef.current = null;
                 talukLayerRef.current = null;
                 blockLayerRef.current = null;
+                firkaLayerRef.current = null;
+                villageLayerRef.current = null;
                 mapInstance.current = null;
 
                 // Remove the Leaflet map only if its container is initialized.
@@ -371,7 +409,189 @@ export default function GISExplorer({ onBack }) {
         }
     }, [showBlocks]);
 
-    // Search for a district, taluk or block by its feature name.
+    // Firkas are downloaded only when the user enables the Firkas checkbox.
+    // Once downloaded, the layer is kept in memory and reused when toggled.
+    useEffect(() => {
+        const map = mapInstance.current;
+
+        if (!map) return undefined;
+
+        // Hide the layer when the checkbox is switched off.
+        if (!showFirkas) {
+            if (
+                firkaLayerRef.current &&
+                map.hasLayer(firkaLayerRef.current)
+            ) {
+                map.removeLayer(firkaLayerRef.current);
+            }
+
+            return undefined;
+        }
+
+        // If already downloaded, simply show the existing layer.
+        if (firkaLayerRef.current) {
+            if (!map.hasLayer(firkaLayerRef.current)) {
+                firkaLayerRef.current.addTo(map);
+            }
+
+            return undefined;
+        }
+
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const loadFirkas = async () => {
+            try {
+                const response = await fetch('/data/TN_Firkas.geojson', {
+                    signal: controller.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}: Unable to load TN_Firkas.geojson`
+                    );
+                }
+
+                const geojson = await response.json();
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                if (
+                    !geojson ||
+                    geojson.type !== 'FeatureCollection' ||
+                    !Array.isArray(geojson.features)
+                ) {
+                    throw new Error(
+                        'Invalid TN_Firkas.geojson FeatureCollection'
+                    );
+                }
+
+                const layer = createGeoJSONLayer(geojson, 'firka');
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                firkaLayerRef.current = layer;
+                setFirkaCount(geojson.features.length);
+                layer.addTo(map);
+
+                console.log(
+                    `Firkas layer loaded: ${geojson.features.length} features`
+                );
+            } catch (err) {
+                if (cancelled || err.name === 'AbortError') return;
+
+                console.error('Firkas layer error:', err);
+
+                setError((previous) =>
+                    previous
+                        ? `${previous}\\nFirkas: ${err.message}`
+                        : `Firkas: ${err.message}`
+                );
+
+                setShowFirkas(false);
+            }
+        };
+
+        loadFirkas();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [showFirkas]);
+
+    // Villages are loaded only when the user enables the Villages checkbox.
+    // The simplified GeoJSON is used to reduce download and rendering cost.
+    useEffect(() => {
+        const map = mapInstance.current;
+
+        if (!map) return undefined;
+
+        if (!showVillages) {
+            if (
+                villageLayerRef.current &&
+                map.hasLayer(villageLayerRef.current)
+            ) {
+                map.removeLayer(villageLayerRef.current);
+            }
+
+            return undefined;
+        }
+
+        // Reuse the layer after its first successful load.
+        if (villageLayerRef.current) {
+            if (!map.hasLayer(villageLayerRef.current)) {
+                villageLayerRef.current.addTo(map);
+            }
+
+            return undefined;
+        }
+
+        let cancelled = false;
+        const controller = new AbortController();
+
+        const loadVillages = async () => {
+            try {
+                const response = await fetch(
+                    '/data/TN_Villages_simplified.geojson',
+                    { signal: controller.signal }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}: Unable to load TN_Villages_simplified.geojson`
+                    );
+                }
+
+                const geojson = await response.json();
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                if (
+                    !geojson ||
+                    geojson.type !== 'FeatureCollection' ||
+                    !Array.isArray(geojson.features)
+                ) {
+                    throw new Error(
+                        'Invalid TN_Villages_simplified.geojson FeatureCollection'
+                    );
+                }
+
+                const layer = createGeoJSONLayer(geojson, 'village');
+
+                if (cancelled || mapInstance.current !== map) return;
+
+                villageLayerRef.current = layer;
+                setVillageCount(geojson.features.length);
+                layer.addTo(map);
+
+                console.log(
+                    `Villages layer loaded: ${geojson.features.length} features`
+                );
+            } catch (err) {
+                if (cancelled || err.name === 'AbortError') return;
+
+                console.error('Villages layer error:', err);
+
+                setError((previous) =>
+                    previous
+                        ? `${previous}\nVillages: ${err.message}`
+                        : `Villages: ${err.message}`
+                );
+
+                setShowVillages(false);
+            }
+        };
+
+        loadVillages();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [showVillages]);
+
+    // Search for a district, taluk, block or loaded firka by its feature name.
     const handleSearch = (event) => {
         const value = event.target.value.trim().toLowerCase();
         const map = mapInstance.current;
@@ -381,7 +601,9 @@ export default function GISExplorer({ onBack }) {
         const layers = [
             districtLayerRef.current,
             talukLayerRef.current,
-            blockLayerRef.current
+            blockLayerRef.current,
+            firkaLayerRef.current,
+            villageLayerRef.current
         ];
 
         for (const layer of layers) {
@@ -409,6 +631,10 @@ export default function GISExplorer({ onBack }) {
                         setShowTaluks(true);
                     } else if (layer === blockLayerRef.current) {
                         setShowBlocks(true);
+                    } else if (layer === firkaLayerRef.current) {
+                        setShowFirkas(true);
+                    } else if (layer === villageLayerRef.current) {
+                        setShowVillages(true);
                     }
                 }
 
@@ -454,7 +680,7 @@ export default function GISExplorer({ onBack }) {
                 <input
                     className="gis-search"
                     type="text"
-                    placeholder="Search district, taluk or block..."
+                    placeholder="Search district, taluk, block, firka or village..."
                     onChange={handleSearch}
                 />
 
@@ -523,10 +749,56 @@ export default function GISExplorer({ onBack }) {
                         </span>
                     </label>
 
+                    {/* FIRKAS - loaded on demand */}
+                    <label className="gis-layer-row">
+                        <span className="gis-layer-color purple"></span>
+                        <span className="gis-layer-icon">▦</span>
+                        <span className="gis-layer-name">Firkas</span>
+                        <small>BOUNDARY</small>
+
+                        <input
+                            type="checkbox"
+                            checked={showFirkas}
+                            onChange={(event) =>
+                                setShowFirkas(event.target.checked)
+                            }
+                        />
+
+                        <span className="gis-layer-count">
+                            {firkaCount > 0
+                                ? firkaCount
+                                : showFirkas
+                                    ? '...'
+                                    : 'OFF'}
+                        </span>
+                    </label>
+
+                    {/* VILLAGES - loaded on demand from the simplified GeoJSON */}
+                    <label className="gis-layer-row">
+                        <span className="gis-layer-color cyan"></span>
+                        <span className="gis-layer-icon">▦</span>
+                        <span className="gis-layer-name">Villages</span>
+                        <small>BOUNDARY</small>
+
+                        <input
+                            type="checkbox"
+                            checked={showVillages}
+                            onChange={(event) =>
+                                setShowVillages(event.target.checked)
+                            }
+                        />
+
+                        <span className="gis-layer-count">
+                            {villageCount > 0
+                                ? villageCount
+                                : showVillages
+                                    ? '...'
+                                    : 'OFF'}
+                        </span>
+                    </label>
+
                     {/* OTHER LAYERS - TO BE INTEGRATED */}
                     {[
-                        ['Firkas', 'BOUNDARY'],
-                        ['Villages', 'BOUNDARY'],
                         ['Roads', 'FLOW'],
                         ['Drainage', 'FLOW'],
                         ['River Basins', 'WATER'],
@@ -577,7 +849,9 @@ export default function GISExplorer({ onBack }) {
                     <span>
                         Districts: {districtCount} |
                         Taluks: {talukCount} |
-                        Blocks: {blockCount}
+                        Blocks: {blockCount} |
+                        Firkas: {firkaCount} |
+                        Villages: {villageCount}
                     </span>
                 </div>
             </main>

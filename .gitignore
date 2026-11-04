@@ -25,3 +25,4 @@ dist-ssr
 
 # Original large GIS files
 public/data/TN_Taluk.geojson
+public/data/TN_Villages.geojson
