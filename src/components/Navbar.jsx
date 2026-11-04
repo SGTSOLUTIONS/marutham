@@ -30,11 +30,11 @@ export default function Navbar({
                             onNavigate('home');
                         }}
                     >
-                       <img
-                          src="/Images/foundation-logo.jpeg?v=2"
-                          alt="Marutham Foundation"
-                          className="heritage-logo"
-                          onError={(e) => console.log("Logo failed:", e.currentTarget.src)}
+                        <img
+                            src="/Images/foundation-logo.jpeg?v=2"
+                            alt="Marutham Foundation"
+                            className="hero-logo"
+                            onError={(e) => console.log("Logo failed:", e.currentTarget.src)}
                         />
 
                         <span className="heritage-brand-name">
@@ -65,9 +65,8 @@ export default function Navbar({
                             {NAV_LINKS.map((link) => (
                                 <li className="nav-item" key={link.id}>
                                     <a
-                                        className={`nav-link nav-link-aef ${
-                                            currentPage === link.id ? 'active' : ''
-                                        }`}
+                                        className={`nav-link nav-link-aef ${currentPage === link.id ? 'active' : ''
+                                            }`}
                                         href="#"
                                         onClick={(e) => {
                                             e.preventDefault();
