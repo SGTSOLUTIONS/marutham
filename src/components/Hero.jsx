@@ -14,12 +14,10 @@ export default function Hero({ onNavigate }) {
 
                 <div className="hero-brand">
                     <img
-                        src="/Logo JPG.jpg.jpeg"
+                        src="/Images/foundation-logo.jpeg?v=2"
                         alt="Marutham Foundation"
-                        className="hero-logo"
-                        onError={(e) => {
-                            e.currentTarget.src = LOGO_FALLBACK;
-                        }}
+                        className="heritage-logo"
+                        onError={(e) => console.log("Logo failed:", e.currentTarget.src)}
                     />
 
                     <div>
