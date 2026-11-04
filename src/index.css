@@ -5197,8 +5197,55 @@ h6,
     font-size: 9px;
 }
 
-.gis-layer-row input {
-    accent-color: #E1E100;
+/* GIS layer checkboxes: keep each layer colour visible when unchecked */
+.gis-layer-row input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    margin: 0 3px;
+    border: 2px solid var(--layer-color, #005A9C);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.gis-layer-row input[type="checkbox"]:checked {
+    background-color: var(--layer-color, #005A9C);
+    border-color: var(--layer-color, #005A9C);
+}
+
+.gis-layer-row input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 0;
+    width: 5px;
+    height: 9px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Layer colours follow the order in .gis-layer-list */
+.gis-layer-list > .gis-layer-row:nth-child(1)  { --layer-color: #C51F1A; } /* Districts */
+.gis-layer-list > .gis-layer-row:nth-child(2)  { --layer-color: #F59E0B; } /* Taluks */
+.gis-layer-list > .gis-layer-row:nth-child(3)  { --layer-color: #16803C; } /* Blocks */
+.gis-layer-list > .gis-layer-row:nth-child(4)  { --layer-color: #7C3AED; } /* Firkas */
+.gis-layer-list > .gis-layer-row:nth-child(5)  { --layer-color: #0891B2; } /* Villages */
+.gis-layer-list > .gis-layer-row:nth-child(6)  { --layer-color: #EA7A00; } /* Roads */
+.gis-layer-list > .gis-layer-row:nth-child(7)  { --layer-color: #2563EB; } /* Drainage */
+.gis-layer-list > .gis-layer-row:nth-child(8)  { --layer-color: #0F766E; } /* River Basins */
+.gis-layer-list > .gis-layer-row:nth-child(9)  { --layer-color: #92400E; } /* Geology */
+.gis-layer-list > .gis-layer-row:nth-child(10) { --layer-color: #06B6D4; } /* River Tanks */
+.gis-layer-list > .gis-layer-row:nth-child(11) { --layer-color: #A16207; } /* Soil */
+
+/* Small colour indicator at the left of each GIS layer row */
+.gis-layer-row .gis-layer-color {
+    background: var(--layer-color, #005A9C);
 }
 
 .gis-layer-count {
