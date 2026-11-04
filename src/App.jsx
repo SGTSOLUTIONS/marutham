@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -13,11 +12,10 @@ import AboutPage from './components/AboutPage';
 import MembersModal from './components/MembersModal';
 import ContactPage from './components/ContactPage';
 import GalleryPage from './components/GalleryPage';
-import FindingsPage from './components/FindingsPage';
 import ProgramsPage from './components/ProgramsPage';
-
-// NEW GIS EXPLORER
 import GISExplorer from './components/GISExplorer';
+
+// Note: FindingsPage import has been removed here
 
 import { useFadeAnimation } from './hooks/useFadeAnimation';
 import './index.css';
@@ -28,7 +26,22 @@ export default function App() {
   const [activePolicy, setActivePolicy] = useState(null);
   const [currentPage, setCurrentPage] = useState('home');
 
+  // State for mobile menu
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   useFadeAnimation();
+
+  // Lock body scroll when modals are open
+  useEffect(() => {
+    const anyModalOpen = showDonation || showMembers || activePolicy !== null;
+    document.body.style.overflow = anyModalOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [showDonation, showMembers, activePolicy]);
+
+  // Close mobile menu on page change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [currentPage]);
 
   const openPolicy = (key) => {
     setShowDonation(false);
@@ -37,10 +50,14 @@ export default function App() {
 
   const handleNavigate = (page) => {
     setCurrentPage(page);
+    setIsMobileMenuOpen(false);
     window.scrollTo(0, 0);
   };
 
-  // Full-screen GIS Explorer
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => !prev);
+  };
+
   if (currentPage === 'rd-projects') {
     return (
       <GISExplorer
@@ -53,15 +70,15 @@ export default function App() {
     <>
       <div className="bg-wrapper"></div>
 
-      <div className="container-custom">
+      <div className="container-custom app-responsive-shell">
 
         <Navbar
           onOpenDonate={() => setShowDonation(true)}
           currentPage={currentPage}
           onNavigate={handleNavigate}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onToggleMobileMenu={toggleMobileMenu}
         />
-
-        {/* PAGE RENDERING */}
 
         {currentPage === 'home' && (
           <>
@@ -72,9 +89,7 @@ export default function App() {
         )}
 
         {currentPage === 'about' && (
-          <AboutPage
-            onOpenMembersModal={() => setShowMembers(true)}
-          />
+          <AboutPage onOpenMembersModal={() => setShowMembers(true)} />
         )}
 
         {currentPage === 'programs' && (
@@ -89,9 +104,7 @@ export default function App() {
           <ContactPage />
         )}
 
-        {currentPage === 'findings' && (
-          <FindingsPage onNavigate={handleNavigate} />
-        )}
+        {/* Note: The currentPage === 'findings' block has been removed here */}
 
         <Footer
           onOpenModal={openPolicy}
