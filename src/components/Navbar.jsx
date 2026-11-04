@@ -1,103 +1,85 @@
-
 import React from 'react';
-
-const NAV_LINKS = [
-    { id: 'home', icon: 'fa-home', label: 'Home' },
-    { id: 'about', icon: 'fa-seedling', label: 'Who we are' },
-    { id: 'programs', icon: 'fa-leaf', label: 'What we do' },
-    { id: 'gallery', icon: 'fa-image', label: 'Gallery' },
-    { id: 'contact', icon: 'fa-envelope', label: 'Contact' },
-];
 
 export default function Navbar({
     onOpenDonate,
     currentPage,
-    onNavigate
+    onNavigate,
+    isMobileMenuOpen,
+    onToggleMobileMenu,
 }) {
+    const links = [
+        { key: 'home', label: 'Home', icon: 'fa-home' },
+        { key: 'about', label: 'About', icon: 'fa-users' },
+        { key: 'programs', label: 'Programs', icon: 'fa-leaf' },
+        { key: 'gallery', label: 'Gallery', icon: 'fa-images' },
+        // { key: 'findings', label: 'Findings', icon: 'fa-chart-pie' },  <-- Removed this line
+        { key: 'contact', label: 'Contact', icon: 'fa-envelope' },
+    ];
+
     return (
         <div className="navbar-heritage-shell">
+            <nav className="navbar-aef navbar navbar-expand-lg">
+                <div className="container-fluid px-0">
 
-            <nav className="navbar navbar-expand-lg navbar-aef">
-
-                <div className="container-fluid px-2 px-lg-3">
-
-                    {/* Foundation Brand with Logo */}
+                    {/* Brand Logo + Name */}
                     <a
-                        className="navbar-brand heritage-brand"
+                        className="navbar-brand heritage-brand d-flex align-items-center"
                         href="#"
                         onClick={(e) => {
                             e.preventDefault();
                             onNavigate('home');
                         }}
                     >
-                        <img
-                            src="/Images/foundation-logo.jpeg?v=2"
-                            alt="Marutham Foundation"
-                            className="hero-logo"
-                            onError={(e) => console.log("Logo failed:", e.currentTarget.src)}
-                        />
-
-                        <span className="heritage-brand-name">
-                            Marutham Foundation
-                        </span>
+                        <img src="/logo.jpeg" alt="Marutham Foundation" className="hero-logo" />
+                        <span className="heritage-brand-name ms-2">Marutham Foundation</span>
                     </a>
 
-                    {/* Mobile Toggle */}
+                    {/* Mobile Hamburger Toggle Button */}
                     <button
-                        className="navbar-toggler heritage-toggler"
+                        className="navbar-toggler heritage-toggler d-lg-none"
                         type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mainNav"
-                        aria-controls="mainNav"
-                        aria-expanded="false"
+                        onClick={onToggleMobileMenu}
                         aria-label="Toggle navigation"
+                        aria-expanded={isMobileMenuOpen}
                     >
-                        <i className="fas fa-bars"></i>
+                        <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
                     </button>
 
-                    {/* Navigation Links */}
-                    <div
-                        className="collapse navbar-collapse"
-                        id="mainNav"
-                    >
+                    {/* Collapsible Menu Wrapper */}
+                    <div className={`collapse navbar-collapse ${isMobileMenuOpen ? 'show' : ''}`}>
                         <ul className="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-
-                            {NAV_LINKS.map((link) => (
-                                <li className="nav-item" key={link.id}>
+                            {links.map((link) => (
+                                <li className="nav-item" key={link.key}>
                                     <a
-                                        className={`nav-link nav-link-aef ${currentPage === link.id ? 'active' : ''
-                                            }`}
+                                        className={`nav-link nav-link-aef ${currentPage === link.key ? 'active' : ''}`}
                                         href="#"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            onNavigate(link.id);
+                                            onNavigate(link.key);
                                         }}
                                     >
-                                        <i className={`fas ${link.icon} me-1`}></i>
+                                        <i className={`fas ${link.icon} me-2 d-lg-none`}></i>
                                         {link.label}
                                     </a>
                                 </li>
                             ))}
 
                             {/* Donate Button */}
-                            <li className="nav-item ms-lg-2">
+                            <li className="nav-item ms-lg-3 mt-2 mt-lg-0">
                                 <button
+                                    className="btn-donate-aef"
                                     type="button"
-                                    className="btn btn-donate-aef"
                                     onClick={onOpenDonate}
                                 >
                                     <i className="fas fa-heart me-2"></i>
-                                    Donate Now
+                                    Donate
                                 </button>
                             </li>
-
                         </ul>
                     </div>
 
                 </div>
-
             </nav>
-
         </div>
     );
 }
