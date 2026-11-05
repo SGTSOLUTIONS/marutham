@@ -5666,3 +5666,61 @@ h6,
     }
 }
 
+/* ==========================================
+   HIGHLIGHTED TAMIL POEM (HERO SECTION)
+========================================== */
+
+.tamil-poem-highlight {
+    background: rgba(255, 255, 255, 0.75);
+    /* Solid light background to block the cyan */
+    backdrop-filter: blur(5px);
+    padding: 1.5rem 2rem;
+    border-radius: 15px 40px 15px 40px;
+    /* Matches your heritage card style */
+    border-left: 5px solid #E1E100;
+    /* Yellow accent line */
+    border-right: 1px solid rgba(6, 59, 0, 0.1);
+    border-top: 1px solid rgba(6, 59, 0, 0.1);
+    border-bottom: 1px solid rgba(6, 59, 0, 0.1);
+    margin: 25px auto;
+    max-width: 800px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    text-align: left;
+}
+
+.tamil-poem-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+    color: #063B00;
+    /* Dark heritage green */
+    line-height: 1.9;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.tamil-poem-translation {
+    font-family: 'Playfair Display', serif;
+    /* Serif for the English translation */
+    font-size: 0.9rem;
+    font-style: italic;
+    color: #266210;
+    /* Slightly lighter green for the translation */
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.tamil-poem-translation i {
+    color: #005A9C;
+    /* Blue leaf icon */
+}
+
+/* Mobile adjustment */
+@media (max-width: 768px) {
+    .tamil-poem-highlight {
+        padding: 1.2rem 1.2rem;
+    }
+
+    .tamil-poem-text {
+        font-size: 1rem;
+    }
+}
