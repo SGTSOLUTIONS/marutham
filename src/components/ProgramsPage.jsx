@@ -1,40 +1,4 @@
-
 import React from 'react';
-
-const OBJECTIVES = [
-    {
-        num: '01',
-        title: 'Soil Protection & Conservation',
-        icon: 'fa-seedling',
-        theme: 'soil',
-        items: [
-            'Promote soil health through sustainable agricultural practices.',
-            'Encourage organic farming, natural fertilizers, and erosion control.',
-            'Conduct soil testing & fertility mapping using Geospatial technology.',
-        ],
-    },
-    {
-        num: '02',
-        title: 'Renovation & Protection of Water Bodies',
-        icon: 'fa-water',
-        theme: 'water',
-        items: [
-            'Identify, restore, and rejuvenate ponds, lakes, and traditional systems.',
-            'Implement rainwater harvesting & watershed management.',
-            'Use remote sensing & GIS to monitor water body health.',
-        ],
-    },
-    {
-        num: '03',
-        title: 'Educational Support to the Needy',
-        icon: 'fa-book-open',
-        theme: 'education',
-        items: [
-            'Offer scholarships, study materials & mentorship.',
-            'Conduct coaching, career guidance & digital literacy programs.',
-        ],
-    },
-];
 
 const APPROACHES = [
     {
@@ -123,80 +87,6 @@ export default function ProgramsPage({ onNavigate }) {
 
                 <div className="programs-banner-ornament right">
                     ❧
-                </div>
-
-            </section>
-
-
-            {/* =================================
-                OUR OBJECTIVES
-            ================================= */}
-
-            <section className="programs-objectives-section">
-
-                <ProgramsHeading
-                    icon="fa-bullseye"
-                    subtitle="Our commitment to nature, education and community development"
-                >
-                    Our Objectives
-                </ProgramsHeading>
-
-                <div className="row g-4">
-
-                    {OBJECTIVES.map((obj) => (
-
-                        <div
-                            className="col-lg-4 col-md-6"
-                            key={obj.num}
-                        >
-
-                            <article
-                                className={`objective-heritage-card objective-${obj.theme}`}
-                            >
-
-                                <div className="objective-card-top">
-
-                                    <span className="objective-number">
-                                        {obj.num}
-                                    </span>
-
-                                    <div className="objective-icon">
-                                        <i className={`fas ${obj.icon}`}></i>
-                                    </div>
-
-                                    <span className="objective-corner">
-                                        ❧
-                                    </span>
-
-                                </div>
-
-                                <h3>{obj.title}</h3>
-
-                                <div className="objective-divider">
-                                    <span>❧</span>
-                                </div>
-
-                                <ul>
-                                    {obj.items.map((item, index) => (
-
-                                        <li key={index}>
-                                            <i className="fas fa-circle"></i>
-                                            <span>{item}</span>
-                                        </li>
-
-                                    ))}
-                                </ul>
-
-                                <div className="objective-bottom-ornament">
-                                    ❧
-                                </div>
-
-                            </article>
-
-                        </div>
-
-                    ))}
-
                 </div>
 
             </section>
@@ -297,16 +187,16 @@ export default function ProgramsPage({ onNavigate }) {
 
                     <div className="rd-buttons">
 
-                        
-                    <button
-                       type="button"
-                       onClick={() => onNavigate?.('rd-projects')}
-                       className="rd-explore-btn"
-                    >
-                      <i className="fas fa-map-marked-alt"></i>
-                      Explore R&D Projects
-                      <i className="fas fa-arrow-right"></i>
-                    </button>
+
+                        <button
+                            type="button"
+                            onClick={() => onNavigate?.('rd-projects')}
+                            className="rd-explore-btn"
+                        >
+                            <i className="fas fa-map-marked-alt"></i>
+                            Explore R&D Projects
+                            <i className="fas fa-arrow-right"></i>
+                        </button>
 
                         <button
                             type="button"

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import 'leaflet.vectorgrid';
+import "leaflet.vectorgrid/dist/Leaflet.VectorGrid.bundled.js";
 import proj4 from 'proj4';
 import 'leaflet/dist/leaflet.css';
 
@@ -272,8 +272,8 @@ export default function GISExplorer({ onBack }) {
                                         : isGeology
                                             ? 'Geological Formation'
                                             : isRoad
-                                            ? 'Road / Street'
-                                            : 'Boundary';
+                                                ? 'Road / Street'
+                                                : 'Boundary';
 
                 const propertyRows = Object.entries(properties)
                     .filter(([, value]) =>
@@ -1159,7 +1159,7 @@ export default function GISExplorer({ onBack }) {
                 <input
                     className="gis-search"
                     type="text"
-                    placeholder="Search district, taluk, block, firka, village or road..." 
+                    placeholder="Search district, taluk, block, firka, village or road..."
                     onChange={handleSearch}
                 />
 
