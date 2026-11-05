@@ -15,7 +15,8 @@ import GalleryPage from './components/GalleryPage';
 import ProgramsPage from './components/ProgramsPage';
 import GISExplorer from './components/GISExplorer';
 
-// Note: FindingsPage import has been removed here
+// 1. We MUST import the FindingsPage here
+import FindingsPage from './components/FindingsPage';
 
 import { useFadeAnimation } from './hooks/useFadeAnimation';
 import './index.css';
@@ -58,6 +59,7 @@ export default function App() {
     setIsMobileMenuOpen((prev) => !prev);
   };
 
+  // Handle GIS Explorer full screen mode
   if (currentPage === 'rd-projects') {
     return (
       <GISExplorer
@@ -104,7 +106,10 @@ export default function App() {
           <ContactPage />
         )}
 
-        {/* Note: The currentPage === 'findings' block has been removed here */}
+        {/* 2. We MUST add the route for the findings page here */}
+        {currentPage === 'findings' && (
+          <FindingsPage onNavigate={handleNavigate} />
+        )}
 
         <Footer
           onOpenModal={openPolicy}
