@@ -18,7 +18,7 @@ export default function Footer({ onOpenModal, onNavigate }) {
             links: [
                 { label: 'Our Story', page: 'about' },
                 { label: 'Our Team', page: 'about' },
-                { label: 'Our Approach', page: 'home' },
+                { label: 'Our System', page: 'home' },
                 { label: 'Contact', page: 'contact' },
             ],
         },
@@ -27,7 +27,7 @@ export default function Footer({ onOpenModal, onNavigate }) {
             links: [
                 { label: 'Home', page: 'home' },
                 { label: 'Gallery', page: 'gallery' },
-                { label: 'What We Do', page: 'programs' },
+                { label: 'Programs', page: 'programs' },
                 { label: 'Contact', page: 'contact' },
             ],
         },
