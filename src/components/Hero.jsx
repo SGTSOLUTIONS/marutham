@@ -13,7 +13,7 @@ export default function Hero({ onNavigate }) {
 
                 <div className="hero-brand">
                     <img
-                        src="/Images/foundation-logo.jpeg?v=2"
+                        src="/logo.jpeg"
                         alt="Marutham Foundation"
                         className="heritage-logo"
                         onError={(e) => console.log("Logo failed:", e.currentTarget.src)}

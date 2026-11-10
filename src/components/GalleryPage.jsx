@@ -5,42 +5,42 @@ const GALLERY_ITEMS = [
     {
         id: 1,
         category: 'soil',
-        img: '/Images/soil.jpg',
+        img: '/images/soil.jpg',
         title: 'Soil Testing & Fertility Mapping',
         desc: 'Using geospatial technologies for sustainable agriculture.',
     },
     {
         id: 2,
         category: 'soil',
-        img: '/Images/water.jpg',
+        img: '/images/water.jpg',
         title: 'Water Body Restoration',
         desc: 'Rejuvenating ponds and traditional water systems.',
     },
     {
         id: 3,
         category: 'education',
-        img: '/Images/education.jpg',
+        img: '/images/education.jpg',
         title: 'Educational Support',
         desc: 'Scholarships and mentorship for underprivileged students.',
     },
     {
         id: 4,
         category: 'farming',
-        img: '/Images/country.jpg',
+        img: '/images/country.jpg',
         title: 'Country Cows Conservation',
         desc: 'Protecting indigenous cattle breeds for sustainable dairy.',
     },
     {
         id: 5,
         category: 'community',
-        img: '/Images/community.jpg',
+        img: '/images/community.jpg',
         title: 'Community Engagement',
         desc: 'Participatory development and grassroots leadership.',
     },
     {
         id: 6,
         category: 'women',
-        img: '/Images/women%20empower.jpg',
+        img: '/images/women%20empower.jpg',
         title: 'Women Self-Help Groups',
         desc: 'Entrepreneurship and leadership training for women.',
     },
@@ -192,9 +192,8 @@ export default function GalleryPage() {
                         <button
                             type="button"
                             key={item.id}
-                            className={`gallery-filter-btn ${
-                                filter === item.id ? 'active' : ''
-                            }`}
+                            className={`gallery-filter-btn ${filter === item.id ? 'active' : ''
+                                }`}
                             onClick={() => setFilter(item.id)}
                         >
 

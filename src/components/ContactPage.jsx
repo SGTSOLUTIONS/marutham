@@ -85,9 +85,7 @@ ${formData.message}
                         <i className="fas fa-address-card me-2"></i>
                         Contact Information
                     </h2>
-                    <p className="section-subtitle">
-                        We'd love to hear from you
-                    </p>
+
                 </div>
 
                 <div className="row g-4">
@@ -309,9 +307,7 @@ ${formData.message}
                         <i className="fas fa-map-marked-alt me-2"></i>
                         Find Our Location
                     </h2>
-                    <p className="section-subtitle">
-                        Visit us at our Chennai office
-                    </p>
+
                 </div>
 
                 <div className="contact-map-card">

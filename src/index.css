@@ -60,6 +60,46 @@ h6,
     color: #fcfdfc;
 }
 
+/* ==========================================
+   GLOBAL COMMON SECTION HEADINGS & SUBTITLES
+========================================== */
+
+/* Stacks the Title and Subtitle vertically and centers them perfectly */
+.approach-heading,
+.programs-section-heading,
+.gallery-section-heading,
+.heritage-section-heading,
+.findings-heritage-section-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    gap: 12px;
+    margin-bottom: 35px;
+}
+
+/* Common White Box Subtitle Styling */
+.approach-heading .section-subtitle,
+.programs-section-heading>p,
+.gallery-section-heading>p,
+.heritage-section-heading>p,
+.findings-heritage-section-heading>p {
+    display: inline-block;
+    color: #ceeb2c;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: linear-gradient(rgb(40, 83, 22), rgba(11, 101, 197, 0.72));
+    backdrop-filter: blur(4px);
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 12px rgb(219, 226, 16);
+    margin: 0;
+}
+
 /* ========== NAVBAR ========== */
 .navbar-aef {
     background: rgba(0, 90, 156, 0.12);
@@ -796,10 +836,6 @@ h6,
     padding: 30px 0 45px;
 }
 
-.approach-heading {
-    margin-bottom: 35px;
-}
-
 .approach-title-frame {
     display: inline-flex;
     align-items: center;
@@ -824,12 +860,6 @@ h6,
 .approach-title-frame>i {
     color: #E1E100;
     font-size: 1.6rem;
-}
-
-.approach-heading .section-subtitle {
-    color: #266210;
-    margin-top: 15px;
-    font-weight: 500;
 }
 
 .objective-card {
@@ -1559,11 +1589,6 @@ h6,
     padding-bottom: 35px;
 }
 
-.heritage-section-heading {
-    text-align: center;
-    margin-bottom: 35px;
-}
-
 .heritage-heading-frame {
     display: inline-flex;
     align-items: center;
@@ -1587,12 +1612,6 @@ h6,
     font-family: 'Playfair Display', serif;
     font-size: 1.7rem;
     font-weight: 700;
-}
-
-.heritage-section-heading>p {
-    margin-top: 14px;
-    color: #266210;
-    font-size: .92rem;
 }
 
 .who-banner {
@@ -2505,11 +2524,6 @@ h6,
     padding-bottom: 35px;
 }
 
-.programs-section-heading {
-    text-align: center;
-    margin-bottom: 38px;
-}
-
 .programs-heading-frame {
     display: inline-flex;
     justify-content: center;
@@ -2533,12 +2547,6 @@ h6,
     font-family: 'Playfair Display', serif;
     font-size: 1.7rem;
     font-weight: 700;
-}
-
-.programs-section-heading>p {
-    color: #266210;
-    font-size: .9rem;
-    margin-top: 13px;
 }
 
 .programs-hero-banner {
@@ -3212,11 +3220,6 @@ h6,
     transform: rotate(180deg);
 }
 
-.gallery-section-heading {
-    text-align: center;
-    margin-bottom: 32px;
-}
-
 .gallery-heading-frame {
     display: inline-flex;
     align-items: center;
@@ -3240,12 +3243,6 @@ h6,
     font-family: 'Playfair Display', serif;
     font-size: 1.6rem;
     font-weight: 700;
-}
-
-.gallery-section-heading>p {
-    color: #266210;
-    font-size: .9rem;
-    margin-top: 13px;
 }
 
 .gallery-filter-wrapper {
@@ -5507,11 +5504,6 @@ h6,
 }
 
 /* 2. Section Heading */
-.findings-heritage-section-heading {
-    text-align: center;
-    margin-bottom: 35px;
-}
-
 .findings-heading-frame {
     display: inline-flex;
     align-items: center;

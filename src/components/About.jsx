@@ -99,7 +99,7 @@ export default function About() {
                                 <div className="emblem-inner-ring">
 
                                     <img
-                                        src="/Images/foundation-logo.jpeg"
+                                        src="/logo.jpeg"
                                         alt="Marutham Foundation Emblem"
                                         onError={(e) => {
                                             e.currentTarget.src = LOGO_FALLBACK;

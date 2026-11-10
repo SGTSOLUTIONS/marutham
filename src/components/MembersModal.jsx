@@ -10,7 +10,7 @@ const MEMBERS = [
     { name: 'Dr. G. Ravi', role: 'Senior Geologist', icon: 'fa-globe-asia' },
     { name: 'S. Suburaj', role: 'Agriculture Economist', icon: 'fa-tractor' },
     { name: 'S. Mohana', role: 'GIS Specialist', icon: 'fa-map-marked-alt' },
-    { name: 'R. Gayathri', role: 'Web Developer', icon: 'fa-vector-square' },
+    { name: 'R. Gayathri', role: 'IT Specialist', icon: 'fa-vector-square' },
     { name: 'G. Muthu', role: 'Social Activist', icon: 'fa-hands-helping' },
     { name: 'D. M. Raja', role: 'Social Activist', icon: 'fa-users' },
 ];
